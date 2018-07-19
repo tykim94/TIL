@@ -82,3 +82,101 @@ public 은 주로 클래스 내 멤버함수를 선언하는 영역이다.
 >이것이 캡슐화하는 이유인데, 날을 하나의 객체(캡슐)로 본다면, 드릴을 새로 바꾸어도 날은 그대로 사용 가능하고, 반대로 하나의 드릴에 날만 교체하여 사용할 수도 있다. 캡슐화는 개발자 편리하게 사용하기 위해 만들어진 개념이다.
 >
 >참고자료: https://kin.naver.com/qna/detail.nhn?d1id=1&dirId=1040101&docId=115497254&qb=7KCV67O07J2A64uJ6rO8IOy6oeyKkO2ZlA==&enc=utf8&section=kin&rank=1&search_sort=0&spq=0&pid=T08pxspVuERssslgQ14sssssted-375468&sid=zYDQpBEjXCu3SIwfvWehyw%3D%3D
+
+## 생성자(Constructor)와 소멸자(Destructor)
+생성자는 흔히 클래스를 초기화하기 편하게 만들어준 기능이다.
+
+클래스를 사용하여 객체 생성시 딱 한번 호출되는 특징을 가진다.
+```C++
+class classA
+{
+private:
+  int a;
+  char * name;
+
+public:
+  classA(int num, char * name) //클래스의 이름과 동일하다(classA)
+    :a(num)                    //이 줄을 **멤버 이니셜라이저** 라고 부른다.
+  {
+    int len = strlen(name) + 1;
+    this->name = new char[strlen(len)];
+  }
+
+  ~classA()
+  {
+    delete []name;
+  }
+}
+```
+
+위 코드에서 *classA(int num, char * name){}* 이란 함수를 __생성자__ 라고 부르고
+
+*~classA(){}* 이란 함수를 __소멸자__ 라고 부른다.
+
+또한 중간에 **this** 라는 표현을 찾을 수 있는데 객체 자신을 가르키는 용도로 사용한다.
+
+변수의 이름을 정해주는것은 의외로 귀찮은 일인데, 매개변수와 멤버변수를 둘 다 name으로 받았지만, 멤버변수 name을 가르키는 용도로 this를 사용한 것을 코드로써 확인할 수 있다.
+
+## 복사 생성자
+생성자를 알았으니 복사 생성자는 비슷한 단어이므로 비슷한 개념이란 걸 유추할 수 있다.
+
+```c++
+class SoSimple{
+private:
+  //생략
+public:
+  SoSimple(int n1, int n2) : num1(n1), num2(n2) {}   //생성자
+
+  SoSimple(SoSimple &copy) : num1(copy.num1), num2(copy.num2) {} //복사 생성자
+};
+
+int main(void)
+{
+  SoSimple sim1(15, 30);
+  SoSimple sim2 = sim1; // (O) 가능
+}
+```
+위에 코드에서 볼 수 있듯이 sim2라는 객체의 변수에 sim1라는 객체의 변수를 그대로 채워넣기위해 만들어진 함수가 복사생성자이다. 만일 위의 경우 따로 복사생성자를 만들어 주지 않아도 자동으로 디폴트 복사 생성자가 생긴다. 위의 경우는 **얕은 복사** 이다.
+
+하지만 아래와 같은 경우엔 **깊은 복사** 라 부른다.
+```C++
+class test
+{
+private:
+  int a;
+  char * name;
+
+public:
+  test(int num, char * name)
+    :a(num)                   
+  {
+    int len = strlen(name) + 1;
+    this->name = new char[strlen(len)];
+  }
+****************************************
+*  test(const test& copy) : a(copy.a)
+*  {
+*    name = new char[strlen(copy.name) + 1];
+*    strcpy(name, copy.name);
+*  }
+****************************************
+};
+
+int main(void)
+{
+  classA A(3, "taeyoon");
+  classA B = A;
+}
+```
+
+초기화를 할때 main 함수안에 클래스명 B는 사실상 복사가 되지 않는다. 그 이유는 classA생성자 안에 동적할당(new)를 진행하기 때문이다. 따라서, 우리는 별표로 가둔 함수처럼 복사 생성자를 만들어줘야한다. 이를 **깊은 복사** 라고 부른다.
+
+#### Static 변수
+
+>유니티로 게임을 만들 때 궁금했던점이 있었다. 여러 개의 같은 공을 튀긴다고 가정하자. 복사 된 5개의 공이 바닥에 닿을 때마다 스크립트에서 [num++] 식으로 올리고 싶었다. 하지만 5개의 공이 각자의 스크립트를 돌리는 중이라 num은 계속 1, 2, 3 식으로 올라가지 않고 그대로 0, 1 만 반복했다. 그 이유는 모든 공이 같은 스크립트를 공유하지만 각자 스스로 스크립트를 돌리는 중이라 각자 num변수를 난 한번튕겼어! 난 한번튕겼어! 했기 때문이다. 이때 질문을 통해 알았지만, 변수 선언 시, static int num = 0; 이라고 하면 각자가 같은 변수를 공유한다는 것을 알게되었다.
+
+이처럼, static은
+- 전역변수에 선언된 static: 선언된 파일 내에서만 참조 혀용.
+- 함수 내에 선언된 static: 지역변수와 달리 함수를 빠져나가도 소멸되지 않음.
+
+공통된 내용은 사라지지 않게 해준다는 점을 기억하자.
