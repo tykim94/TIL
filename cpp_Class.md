@@ -219,3 +219,57 @@ public:
 
  접근제어 지시자에서 protected의 설명을 상속을 배우기 전이어서 생략했는데, 지금 설명하자면 private과 public과 같은 의미로 사용된다. private는 클래스 내에서만 접근허용하고, public은 어디서든 접근 허용한다. protected 는 그 중간의 의미로 **유도 클래스에서의 접근을 허용한다.**
  >protected 안에 변수 int num1; 이 있다고 가정하자. num1은 평소에는 private 처럼 행동하며 왠만한 곳에선 접근을 불허하고 클래스 내에서만 접근 가능하다. 하지만 protected를 가진 클래스가 유도 클래스라면, 기초 클래스에서 protected 내의 변수 num1 을 불러내는것은 허용한다.
+
+### Overriding vs Overloading
+
+>유니티를 공부할 때 오버라이딩을 한번 경험해본 적이 있었다. 갈색 좀비를 하나 만들고 안에 스크립트와 콜라이더, 그리고 애니메이션을 넣었다. 그 좀비를 완벽히 만들곤, 녹색 좀비를 만들었다. 녹색 좀비를 갈색 좀비와 똑같이 만들고 싶었다. 물론 복사붙여넣기 해서 넣는것은 맞다. 하지만 애니메이션은 갈색 좀비와 녹색 좀비는 모델이 다르기 때문에 걷는 모션은 둘다 가졌다 해도 다르게 넣어줘야했다. 그때 달리기라는 애니메이션이 있다 라는 상황까지를 만들어주는 툴이 overriding이었다. 똑같은 기능을 각 캐릭터에 넣어줬다.
+
+위에서 설명한 것처럼 다른 것 하나없이 완전히 똑같은 기능을 가진 형태를 또다시 만들어 주는것이 **overriding** 이었다. **overloading** 은 overriding과 굉장히 비슷하게 생겨서 헷갈리기 충분하여 다시 짚겠다. 오버로딩(overloading)은 주로 함수에서 쓰이며 함수 오버로딩이라 주로 부른다.
+
+```c++
+int MyFunc(int num)
+{
+  num++;
+  return num;
+}
+
+int MyFunc(int a, int b) //오버로딩
+{
+  return a + b;
+}
+
+int main(void)
+{
+  MyFunc(20);
+  MyFunc(30, 40);
+  return 0;
+}
+```
+
+위에서 함수 오버로딩이 사용되었는데, 같은 이름의 함수가 두개 사용되었다. C언어에서는 문제가 되어서 컴파일 실패하였지만, C++에서는 함수 오버로딩을 지원하기 때문에, 매개변수의 개수(인수의 개수 라고도 말할 수 있다.) 로 C++은 분류가 가능하다.
+
+### 상속과 다형성
+```c++
+class First
+{
+  //생략
+public:
+  void FirstFunc() {cont<<"first"<<endl; }
+};
+
+class Second : public First
+{
+  //생략
+public:
+  void FirstFunc() {cont<<"second"<<endl; }
+};
+
+class Third : public Second
+{
+  //생략
+public:
+  void FirstFunc() {cont<<"third"<<endl; }
+};
+
+
+```
