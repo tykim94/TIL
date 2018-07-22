@@ -5,16 +5,16 @@
 >>구조체
 
 차이점이 있다면 클래스 내 선언한 함수가 아닌 영역에선 클래스 변수를 선언할 수 없다.
-```
-Class Car
+```c++
+class Car
 {
   char gamerID[CAR_CONST::ID_LEN];
   int fuelGauge;
   int curSpeed;
 
-  void ShowCarState(){ ``` }
-  void Accel() { ``` }
-  void Break() { ``` }
+  void ShowCarState(){ }
+  void Accel() { }
+  void Break() { }
 };
 
 int main(void)
@@ -138,7 +138,7 @@ int main(void)
 ```
 위에 코드에서 볼 수 있듯이 sim2라는 객체의 변수에 sim1라는 객체의 변수를 그대로 채워넣기위해 만들어진 함수가 복사생성자이다. 만일 위의 경우 따로 복사생성자를 만들어 주지 않아도 자동으로 디폴트 복사 생성자가 생긴다. 위의 경우는 **얕은 복사** 이다.
 
-```
+```c++
 explicit  SoSimple(SoSimple &copy) : num1(copy.num1), num2(copy.num2) {}
 ```
 위처럼 <u>explicit</u> 을 복사생성자 앞에 붙여주 **Sosimple sim2 = sim1;** 과 같은 복사생성자의 묵시적 호출을 막을 수 있으며, 필히 **Sosimple sim2(sim1)** 라고 적어줘야 한다.
@@ -254,22 +254,53 @@ class First
 {
   //생략
 public:
-  void FirstFunc() {cont<<"first"<<endl; }
+  void MyFunc() {cont<<"first"<<endl; }
 };
 
 class Second : public First
 {
   //생략
 public:
-  void FirstFunc() {cont<<"second"<<endl; }
+  void MyFunc() {cont<<"second"<<endl; }
 };
 
 class Third : public Second
 {
   //생략
 public:
-  void FirstFunc() {cont<<"third"<<endl; }
+  void MyFunc() {cont<<"third"<<endl; }
 };
 
-
+int main(void)
+{
+	Second * temp = new Third;
+	temp->MyFunc();
+	return 0;
+}
 ```
+
+결과는? second 가 컴파일결과로 화면에 띄워진다.
+
+나는 third클래스의 형태로 저장했고, second 클래스에 저장시켜준것 뿐인데 우리가 원하는 third가 아닌 second가 나왔다. 이유는 MyFunc이라는 함수가 세 개의 클래스 모두 오버라이딩 되어있기 때문.  컴파일러는 포인터의 자료형(__Second *__ temp)을 기준으로 판단하지, 실제 가리키는 객체의 자료형(new __third__)을 기준으로 판단하지 않는다. 구별하기 위해선 앞에 *virtual* 을 붙여주면 된다.
+```c++
+//생략
+  virtual void MyFunc() {cont<<"first"<<endl; }
+  //생략
+  virtual void MyFunc() {cont<<"second"<<endl; }
+  //생략
+  virtual void MyFunc() {cont<<"third"<<endl; }
+  //생략
+```
+
+이런식으로 작성되면
+```c++
+int main(void)
+{
+	Second * temp = new Third;
+	temp->MyFunc();
+	return 0;
+}
+```
+일 때 결과는 third를 내보내게 된다.
+
+실제 가리키는 객체의 자료형에 **오버라이딩 된 가상함수(Virtual Function)** 를 가져올 수 있다. 또한 이렇게 같은 이름의 함수를 여러 곳에 형성되는 성질을 가리켜 ***다형성(Polymorphism)*** 이라고 부른다. 
