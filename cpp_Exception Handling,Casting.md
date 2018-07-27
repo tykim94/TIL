@@ -161,7 +161,6 @@ int main(void)
 ```
 - - -
 ### 1. dynamic_cast : 상속관계에서의 안전한 형 변환
-
 >안전한 형 변환이란, 상속관계에 놓여 있는 클래스 사이에서 유도 클래스의 포인터 및 참조형 데이터를 기초 클래스의 포인터 및 참조형 데이터로 형 변환하는 경우를 말함.
 
 ```c++
@@ -179,6 +178,91 @@ int main(void)
     Car * pcar3 = dynamic_cast<Car* >(ptruck3);      //컴파일 OK!!
 }
 ```
+유도 클래스인 Truck을 기초 클래스인 Car로 형변환을 할 때만 가능하다.
 
+### 2. static_cast : A 타입에서 B 타입으로
+>1번 dynamic_cast보다 많은 형 변환을 허용합니다. 다시 말하면 컴파일은 해주는데 어떤 값이 나올진 모르겠고, 책임은 개발자가 져야합니다.
 
-2.
+```c++
+//위와 같은 기초 클래스(Car), 유도 클래스(Truck) 이용함
+
+int main(void)
+{
+
+    //1번
+    Car * pcar1 = new Truck(80, 200);
+    Truck * ptruck1 = static_cast<Truck* >(pcar1);  //컴파일 OK!
+
+    //2번
+    Car * pcar2 = new Car(120);
+    Truck * ptruck2 = static_cast<Truck* >(pcar2);  //컴파일 OK! 그러나...
+}
+```
+1번은 유도 클래스를 기초 클래스의 형태로 형 변환 시키므로 안전하다.
+
+하지만 2번은 기초 클래스를 유도 클래스의 형태로 형 변환 시키므로 불안전하다.
+
+개발자가 기초 클래스를 유도 클래스로 형 변환해도 괜찮다고 확신이 들 때 사용하면 좋다. 그리고 static_cast가 dynamic_cast보다 빠르다.
+```c++
+int main(void)
+{
+  //static_cast식 형 변환
+  double result = static_cast<double>(20)/3;
+
+  //c언어식 형 변환
+  const int num = 20;
+  int * ptr = (int * )&num;
+  float * adr = (float * )ptr;
+}
+```
+static_cast식 형 변환은 상속관계에 있는 클래스들의 형 변환과, 위처럼 기본 자료형 데이터의 형 변환을 허용하지만, c언어 형변환은 위처럼 일반적이지 않은 형 변환까지도 모두 허용한다.
+### 3. const_cast : const의 성향을 삭제하라!
+```c++
+#include <iostream>
+using namespace std;
+
+void ShowString(char* str)
+{
+	cout << str << endl;
+}
+void ShowAddResult(int& n1, int& n2)
+{
+	cout << n1 + n2 << endl;
+}
+
+int main(void)
+{
+	const char * name = "Kim Tae Yoon";
+	ShowString(const_cast<char*>(name));
+
+	const int& num1 = 100;
+	const int& num2 = 200;
+	ShowAddResult(const_cast<int&>(num1), const_cast<int&>(num2));
+	return 0;
+}
+```
+위처럼, 함수의 인자전달 시 매개변수에선 const가 안 붙어있는데 넘기는 인수는 const가 들어갈때, const_cast로 const를 없애는 것이 가능하다. 이런 경우 제한적으로 사용 가능하다.
+
+### 4. reinterpret_cast : 상관없는 자료형으로의 형 변환
+>포인터를 대상으로 하는, 그리고 포인터와 관련이 있는 **모든** 유형의 형 변환을 허용한다.
+
+```c++
+#include <iostream>
+using namespace std;
+
+int main(void)
+{
+	int num = 0x010203;
+	char * ptr = reinterpret_cast<char*>(&num);
+
+	for (int i = 0; i < sizeof(num); i++)
+		cout << static_cast<int>(* (ptr+i)) << endl;
+
+	return 0;
+}
+```
+위의 코드를 살펴보면, 0x010203은 4바이트 바이너리로 표시하면
+
+00000000 / 00000001 / 00000010 / 00000011 이 나오게 되는데
+
+그런 num을 char형 포인터로 형 변환 후 1바이트씩(8자리씩) int형으로 변환하여 출력한다.
