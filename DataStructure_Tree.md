@@ -71,7 +71,7 @@
 ### 이진 트리(binary tree) 표현법
 우린 스택과 큐를 배울 때처럼 배열을 이용할 수도 있고, 연결 리스트 방식을 이용할 수 있다. 하지만 __거의 대부분은 연결 리스트의 방식을 이용한다.__ 배열 방식을 사용해보면 알 수 있겠지만 메모리 공간 낭비가 너무 심하기 때문에 배열 방식의 표현은 가급적 지양한다.
 
-## 3. 트리 알고리즘 (이진트리 방식)
+## 3. 이진 트리 구조체 구현 & 순회 & 연산
 - ### 알고리즘 전, 사전준비
 >left와 right라는 포인터 변수를 만들어서 양 쪽의 자식 노드를 이을 수 있게 만든다.
 
@@ -89,14 +89,6 @@ typedef struct TreeNode {
 
  __3가지 순회 방법 구현__
  ```c
- //중위 순회(inorder traversal)
- void inorder(TreeNode *root) {
-    if(root){
-      inorder(root->left);
-      printf("%d", root->data);
-      inorder(root->right);
-    }
- }
  //전위 순회(preorder traversal)
  void preorder(TreeNode *root) {
    if(root){
@@ -104,6 +96,14 @@ typedef struct TreeNode {
      preorder(root->left);
      preorder(root->right);
    }
+ }
+ //중위 순회(inorder traversal)
+ void inorder(TreeNode *root) {
+    if(root){
+      inorder(root->left);
+      printf("%d", root->data);
+      inorder(root->right);
+    }
  }
  //후위 순회(postorder traversal)
  void postorder(TreeNode *root) {
@@ -202,3 +202,299 @@ void main()
 }
   ```
 #### cf) 트리 순회를 활용한 <u>디렉터리 용량 계산</u>
+위의 수식 트리 계산 프로그램과 비슷하게 "후위 순회"를 사용한다. 디렉터리 안에 두 개의 디렉터리가 각각 200KB씩 차지하고 있다고 하자. 그러면 후위 순회 방식으로 아래 두 개의 디렉터리를 먼저 계산하고, 루트 디렉터리의 용량을 계산하게 된다.
+```c
+//디렉터리 용량 계산 프로그램
+int calc_direc_size(TreeNode *root)
+{
+  int left_size, right_size;
+  if ( root != NULL) {
+    left_size = calc_direc_size( root->left );
+    right_size = calc_direc_size( root->right );
+    return ( root->data + left_size + right_size);
+  }
+}
+```
+
+- ### 이진 트리의 연산
+ - ___노드의 개수___
+
+   모든 노드의 개수를 세어서 표시한다. 트리안의 노드 전부를 순회하는게 중요하다.
+   ```c
+   int get_node_count(TreeNode * node)
+   {
+     int count = 0;
+     if(node != NULL){
+       count = 1 + get_node_count(node->left) + get_node_count(node->right);
+     }
+     return count;
+   }
+   ```
+ - ___단말 노드 개수 구하기___
+
+   Q. 단말 노드(terminal node, leaf node)? A. 자식 노드가 없는 노드
+
+   즉, left와 right 전부 NULL인 노드만 순회하며 골라내자!
+   ```c
+   int get_leaf_count(TreeNode * node)
+   {
+     int count = 0;
+     if( node != NULL ){
+       if( node->left == NULL && node->right == NULL ) return 1;
+       else count = get_leaf_count(node->left)+
+                    get_leaf_count(node->right);
+     }
+     return count;
+   }
+   ```
+
+ - ___높이 구하기___
+
+   개수 구하기와는 다르게 비교를 통한 최대값을 찾는 알고리즘이다.
+   ```c
+  int get_height(TreeNode * node)
+  {
+    int height = 0;
+    if(node != NULL){
+      height = 1 + max(get_height(node->left), get_height(node->right));
+    }
+    return height;
+  }
+   ```
+
+## 4. 스레드 이진 트리 (threaded binary tree)
+>스레드(thread) : 실
+
+이진 트리 순회는 순환 호출을 사용하는데 __순환 호출시 우린 함수를 연속적으로 호출하므로 상당히 비효율적__ 일 수가 있다. 그러면, 순회를 순환 호출 없이, 즉 스택의 도움 없이 할 수는 없는 것일까?
+
+이진 트리를 생각해보면 알 수 있듯 꽤 많은 NULL 링크들이 존재한다. 만일 노드의 개수가 n개라면, 각 노드당 2개의 링크를 가지므로 2n개의 링크를 가지고, 그 중 무료 절반 이상인 n+1개의 링크가 NULL 링크를 가지게 된다. 이 NULL 링크를 잘 사용하여 순환 호출 없이도 트리의 노드들을 순회할 수 있도록 하자는 것이다. 이 __NULL 링크에 중위 순회 시에 선행 노드인 중위 선행자(inorder predecessor)나 중위 순회 시에 후속 노드인 중위 후속자(inorder successor)를 저장시켜 놓은 트리가 스레드 이진 트리(threaded binary tree)이다.__ thread의 의미 그대로, <u>실로 노드들을 순회 순서대로 꿰어서 연결시켜 놓은 트리</u>를 말한다.
+
+★우리는 중위 후속자가 NULL 링크에 저장되어있는 개념을 사용하겠다.★
+### 스레드 이진 트리 구현
+```c
+#include <stdio.h>
+#define TRUE 1
+#define FALSE 0
+
+typedef struct TreeNode {
+	int data;
+	struct TreeNode * left, * right;
+	int is_thread; //만약 오른쪽 링크가 스레드이면 TRUE(1)
+} TreeNode;
+
+TreeNode n1 = { 'A', NULL, NULL, 1};
+TreeNode n2 = { 'B', NULL, NULL, 1};
+TreeNode n3 = { 'C', &n1, &n2, 0};
+TreeNode n4 = { 'D', NULL, NULL, 1};
+TreeNode n5 = { 'E', NULL, NULL, 0};
+TreeNode n6 = { 'F', &n4, &n5, 0};
+TreeNode n7 = { 'G', &n3, &n6, 0};
+TreeNode * exp = &n7;
+
+TreeNode * find_successor(TreeNode * p)
+{
+	//q는 p의 오른쪽 포인터
+	TreeNode * q = p->right;
+	//만약 오른쪽 포인터가 NULL이거나 스레드이면 오른쪽 포인터를 반환
+	if (q == NULL || p->is_thread == TRUE)
+		return q;
+
+	//만약 오른쪽 자식이면 다시 가장 왼쪽 노드로 이동
+	while (q->left != NULL)
+		q = q->left;
+	return q;
+}
+
+void thread_inorder(TreeNode * t)
+{
+	TreeNode * q;
+	q = t;
+	while (q->left != NULL)
+		q = q->left; //가장 왼쪽 노드로 간다
+	do
+	{
+		printf("%c", q->data);  //데이터 출력
+		q = find_successor(q);  //후속자 함수 호출
+	} while (q != NULL);		//NULL이 아니면
+}
+
+void main()
+{
+	//스레드 설정
+	n1.right = &n3;
+	n2.right = &n7;
+	n4.right = &n6;
+	//중위 순회
+	thread_inorder(exp);
+}
+```
+
+우선 우린 right의 값에 스레드를 세 개 넣어준다. n1, n2, n4의 right에 스레드를 넣어준다. 이 사실을 모른 채, 객관적으로 n1~n7 을 본다면, 우린 _right에 들어있는 값이 스레드인지, 진짜 오른쪽 서브트리를 가리키는 것인지 알 수가 없다._ 따라서 우린 __is_thread__ 라는 변수를 넣게 되는데 TRUE라면 중위 후속자(스레드)이며, FALSE라면 오른쪽 자식을 가리키는 포인터가 된다.
+
+중위 순회를 따라 우린 A->C->B->G->D->F->E 순으로 순회하게 된다. 물론 스레드로 인해 순환 호출없이, 함수의 누적된 호출(스택)없이 순회할 수 있어 컴퓨터가 효율적으로 돌아갈 수 있다.
+## 4. 이진 탐색 트리(binary search tree)
+이진 트리 기반의 탐색(search)을 위한 자료 구조이다. 난 컴퓨터의 발생 의의가 방대한 자료의 빠른 처리에 있다고 생각하는데, 그 방대한 자료를 탐색하여 꺼내는 방식도 굉장히 중요하다고 생각한다.
+### 탐색(search) 용어 분석
+__Q. 탐색이란?__ A. 레코드의 집합에서 특정한 레코드를 찾아내는 작업
+- __레코드__ : <군번, 이름, 주특기> 같은 필드의 집합( ex) 15-73010979, 김태윤, 운전병)
+- __필드__ : 위의 군번이나 이름같은 하나의 분류 요소 ( ex) 군번, 이름, 주특기, 계급 등)
+- __테이블__ : 레코드들의 집합 ( ex) <김태윤>, <대대장>, <동기1>...등등)
+- __주요 키(primary key)__ : 이름이나 주특기는 겹칠 수 있다. 예를 들면, 김태윤이란 군인이 몇 십명이 중복될 수 있고, 운전병은 훨씬 많을 것이다. 하지만, 군번이 겹칠일은 절대 없다. 이런 경우, 주요 키(primary key)는 군번이다. 탐색 작업을 할 때는 이러한 키가 입력이 되어 특정한 키를 가진 레코드를 찾게 된다.
+
+### 이진 탐색 트리 정의
+- 모든 노드의 키는 유일하다.
+- 왼쪽 서브 트리의 키들은 루트의 키보다 작다.
+- 오른쪽 서브 트리의 키들은 루트의 키보다 크다.
+- 왼쪽과 오른쪽 서브 트리도 이진 탐색 트리이다.
+
+ ___<u>★나를 기준으로 작으면 왼쪽, 크면 오른쪽으로 이동하여 탐색을 진행하면 된다!★</u>___
+
+### 탐색 알고리즘
+<u>반복적인 탐색 알고리즘</u>과 <u>순환적인 탐색 알고리즘</u> 두 개가 존재한다. 물론 개발자가 편한 알고리즘을 사용하여 탐색하면 되지만, 스레드 이진 트리에서 말했듯이 함수의 순환 호출은 곧 스택이 쌓이는 것이고, 컴퓨터가 비효율적으로 돌아가는 원인이 된다. 따라서 함수 하나에서 처리하는 것이 효율적이기 때문에 __반복적인 탐색 알고리즘을 사용하겠다.__
+
+```c
+//반복적인 탐색 알고리즘
+TreeNode *Search(TreeNode *node, int key)  //key 는 primary key를 나타냄!
+{
+  while(node != NULL) {   //찾을 때까지 계속 반복, 끝까지 찾아도 없다면 종료!
+    if(key == node->key) return node; //딱 맞는 값이 나오면 node반환 후 종료!
+    else if(key < node->key) //key가 나보다 작네? 왼쪽으로 가라
+      node = node->left;
+    else                     //key가 나보다 크네? 오른쪽으로 가라
+      node = node->right;
+  }
+  return NULL;
+}
+```
+- 원하는 값을 발견하면 node반환 후 종료한다.
+- 현재 탐색 중인 노드보다 key가 크면 right, 작으면 left로 이동한다.
+### 이진 탐색 트리 - 삽입 연산
+탐색을 진행하며 크면 right, 작으면 left로 이동하는 것은 다를 것이 없다. 다만, 마지막까지
+```c
+void insert_node(TreeNode **root, int key)
+{
+	TreeNode * p, * t; //p는 부모 노드, t는 현재 노드
+	TreeNode * n;	 //n은 새로운 노드
+
+	t = * root;  //처음엔 루트를 t에 저장
+	p = NULL;	//루트는 부모가 없으므로 p에 NULL 저장
+
+	//탐색을 먼저 수행(위에서 적은 반복 탐색 알고리즘 코드와 같음)
+	while (t != NULL) {
+		if (key == t->key)			//이미 존재하는 값이라면?
+			return;					//insert_node함수 종료!
+		p = t;						//t를 아래 레벨로 내리는 연산(↓)을 위해 작성됨
+		if (key < p->key)			//나보다 작으면 left, 크면 right 이동
+			t = p->left;
+		else
+			t = p->right;
+	}//insert_node함수가 끝날 땐, 새로 들어갈 위치를 알고, 그 위치를 t에 저장하게 됨
+
+	n = (TreeNode * )malloc(sizeof(TreeNode));  //동적할당으로 n에 메모리 할당받음
+	if (n == NULL)	//동적할당 실패여부 물어봄
+		return;		//동적할당 실패시, 함수 종료
+	n->key = key;	//데이터 복사
+	n->left = n->right = NULL;	//left, right 값을 NULL로 초기화
+	if (p != NULL)	//부모노드 존재 물어봄
+		if (key < p->key) //부모 있으면(들어갈 자리 찾았으면) n 노드 이어줌
+			p->left = n;
+		else
+			p->right = n;
+	else * root = n; //만일 노드가 한 개도 없는 트리일때
+                     //root를 n(새로만든 노드)으로 변경
+                     //즉, 새로만든 노드는 루트노드가 됨
+}
+```
+>Q : 왜 우린 root를 매개변수로 받을 때, 더블 포인터로 받나요?
+>
+>A : 우리가 함수에서 매개변수를 포인터로 받는 이유는, 그 값을 함수 내에서 수정하고 싶어서이다. 함수 내에서 swap하고 싶으면 포인터로 매개변수를 받는 call by reference를 활용했던 것을 기억하자.
+>
+>함수 마지막에 ```* root = n;``` 을 짚고 넘어가자.
+>
+>root는 애초에 만들어질 때, main함수 내에서든, 전역변수로서든 ```TreeNode * root;``` 로 만들어지기 때문에, 애초부터 구조체 포인터형이다. 따라서 자연스럽게 함수에서 받을 땐, 형을 맞추기 위해 ```TreeNode * node;``` 의 형식으로 받는게 일반적이고, 여기서는 root값을 수정할 여지(그 여지가 바로 ```* root = n;```)가 있기 때문에 애스터리스트( * )을 하나 더 붙인 더블 포인터로 매개변수를 설정했다.
+
+### 이진 탐색 트리 - 삭제 연산
+트리에서 삭제하려는 노드가 있다고 하자. 그 노드는 크게 세 분류로 나눌 수 있다.
+1. 삭제하려는 노드가 0개의 서브 트리를 가진다.
+2. 삭제하려는 노드가 1개의 서브 트리를 가진다.
+3. 삭제하려는 노드가 2개의 서브 트리를 가진다.
+- - -
+
+1. 삭제하려는 노드가 0개의 서브 트리를 가진다.즉, 단말 노드이다.
+
+ 즉 삭제하려는 노드가 단말 노드이다. 이 경우는 세 가지 경우 중 가장 간단한 경우인데, 부모와의 연결을 끊고 없애고 싶은 노드를 삭제만 하면 끝난다.
+
+
+ 2. 삭제하려는 노드가 1개의 서브 트리를 가진다.
+
+ 이 경우는 삭제하려는 노드의 부모도 1개이며, 삭제하려는 노드의 자식도 1개이기 때문에 부모와 자식, 즉 할아버지와 손자를 이어준다.
+
+ 3. 삭제하려는 노드가 2개의 서브 트리를 가진다.
+
+ 가장 어려운 경우로서, 삭제하려는 노드의 양 쪽에 서브 트리가 달려있는 것을 확인할 수 있다. 이때 우리는 후계자라는 개념을 도입하게된다. 왕이 죽기 전 후계자를 남길 때, 자신의 아래 자식 중에 어떤 사람을 자신의 자리에 앉히고 싶어할까? 자신과 가장 비슷한 사람을 앉혀놔야 자신의 아래에서 일하던 사람들과의 마찰이 가장 적을 것이다. 이처럼 자신과 가장 비슷한 key를 가진 노드와 자리를 바꾸고 사라지면 좋을 것이다. 자신의 서브 트리 내에서 자신과 가장 비슷한 key는 왼쪽 서브 트리에서 가장 큰 값, 혹은 오른쪽 서브 트리에서 가장 작은 값이다. 우리는 오른쪽 서브 트리에서 가장 작은 값과 바꾼다는 개념으로 코드 작성을 진행할 것이다.
+
+ ```c
+void delete_node(TreeNode **root, int key)
+{
+	TreeNode * p, * child, * succ, * succ_p, * t;
+
+	p = NULL;
+	t = * root;
+
+	//t를 탐색
+	while (t != NULL && t->key != key) {
+		p = t;
+		t = (key < p->key) ? p->left : p->right;
+	}
+	//탐색이 종료된 시점에 t가 NULL이면 트리 안에 key가 없음
+	if (t == NULL) {
+		printf("key is not in the tree");
+		return;
+	}
+////////////////////////////////////////////////////////////
+	//서브 트리가 0개인 경우
+	if ((t->left == NULL) && (t->right == NULL)) {
+		if (p != NULL) {
+			if (p->left == t)  //부모와 자식의 링크를 끊는 조건문
+				p->left = NULL;
+			else p->right = NULL;
+		}
+		else
+			* root = NULL;     //트리에 노드가 단 1개인 경우
+	}
+////////////////////////////////////////////////////////////
+	//서브 트리가 1개인 경우
+	else if ((t->left == NULL) || (t->right == NULL)) {
+		child = (t->left != NULL) ? t->left : t->right;
+		if (p != NULL) {
+			if (p->left == t)   //조부모와 손자를 잇는 조건문
+				p->left = child;
+			else
+				p->right = child;
+		}
+		else
+			* root = child;    //루트 노드를 지우는데, 루트에 서브 트리 하나일 때
+	}
+////////////////////////////////////////////////////////////
+	//서브 트리가 2개인 경우
+	else {
+		succ_p = t;           //지우고 싶은 노드를 succ_p(후계자 부모)에 대입
+		succ = t->right;      //succ(후계자)에 지우고 싶은 노드의 오른쪽 노드 대입
+
+		while (succ->left == NULL) {     //계속 왼쪽으로 보낸다(가장 작은 값 탐색)
+			succ_p = succ;
+			succ = succ->left;
+		}
+
+		if (succ_p->left == succ)         //왼쪽으로 한 번이라도 보냈다면,
+			succ_p->left = succ->right;     //후계자가 될 값의 자식을 succ_p에 붙임
+		else    //else의 의미 : 지우고 싶은 노드의 바로 오른쪽 노드가 후계자가 됨
+			succ_p->right = succ->right;    
+
+		t->key = succ->key; //후계자 값을 지울 노드의 값과 바꾼다.
+
+		t = succ; //후계자를 t에 넣는 이유 -> 아래에서 해제해서 없앨려고
+	}
+	free(t); 해제
+}
+```
