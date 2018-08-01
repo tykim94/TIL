@@ -252,17 +252,18 @@ int calc_direc_size(TreeNode *root)
 
    개수 구하기와는 다르게 비교를 통한 최대값을 찾는 알고리즘이다.
    ```c
-  int get_height(TreeNode * node)
-  {
-    int height = 0;
-    if(node != NULL){
-      height = 1 + max(get_height(node->left), get_height(node->right));
-    }
-    return height;
-  }
+   int get_height(TreeNode * node)
+   {
+     int height = 0;
+     if(node != NULL){
+       height = 1 + max(get_height(node->left), get_height(node->right));
+     }
+     return height;
+   }
    ```
 
 ## 4. 스레드 이진 트리 (threaded binary tree)
+
 >스레드(thread) : 실
 
 이진 트리 순회는 순환 호출을 사용하는데 __순환 호출시 우린 함수를 연속적으로 호출하므로 상당히 비효율적__ 일 수가 있다. 그러면, 순회를 순환 호출 없이, 즉 스택의 도움 없이 할 수는 없는 것일까?
@@ -270,6 +271,7 @@ int calc_direc_size(TreeNode *root)
 이진 트리를 생각해보면 알 수 있듯 꽤 많은 NULL 링크들이 존재한다. 만일 노드의 개수가 n개라면, 각 노드당 2개의 링크를 가지므로 2n개의 링크를 가지고, 그 중 무료 절반 이상인 n+1개의 링크가 NULL 링크를 가지게 된다. 이 NULL 링크를 잘 사용하여 순환 호출 없이도 트리의 노드들을 순회할 수 있도록 하자는 것이다. 이 __NULL 링크에 중위 순회 시에 선행 노드인 중위 선행자(inorder predecessor)나 중위 순회 시에 후속 노드인 중위 후속자(inorder successor)를 저장시켜 놓은 트리가 스레드 이진 트리(threaded binary tree)이다.__ thread의 의미 그대로, <u>실로 노드들을 순회 순서대로 꿰어서 연결시켜 놓은 트리</u>를 말한다.
 
 ★우리는 중위 후속자가 NULL 링크에 저장되어있는 개념을 사용하겠다.★
+
 ### 스레드 이진 트리 구현
 ```c
 #include <stdio.h>
