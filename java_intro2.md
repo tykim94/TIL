@@ -28,7 +28,7 @@ Bus클래스는 Car의 메서드를 상속받을 수 있다. 하지만 반대로
 접근지정자 : public > protected > default > private
 - - -
 # 추상클래스
->비둘기, 짜장면___ 어떠한 이미지가 딱 떠오른다. 누구한테나 물어봐도 비슷한 그림을 상상할 수 있다. 하지만, 새, 음식____ 어떤 이미지가 떠오를까? 뭔진 알겠는데 구체적인 구현은 모두 다르다.
+>비둘기, 짜장면? 어떠한 이미지가 딱 떠오른다. 누구한테나 물어봐도 비슷한 그림을 상상할 수 있다. 하지만, 새, 음식? 어떤 이미지가 떠오를까. 뭔진 알겠는데 구체적인 구현은 모두 다르다.
 
 이렇게 모호한 단어들을 가진 클래스들은 부모로서의 역할은 수행할 수 있지만, 객체로의 구현은 불가능하다. 객체가 될 수 있는 클래스는 구체적이어야만 한다.
 ```java
@@ -153,3 +153,144 @@ public static void main(String[] args) {
 하지만 위의 코드는, 부모클래스로 만든 객체를 부모클래스 타입으로 받았다. 우리가 봤던 가장 일반적인 객체 생성이다. 이 때는 만들어진 인스턴스 car는 Truck으로 형변환하는것이 불가능하다.
 - - -
 # 인터페이스 만들기
+__인터페이스__ = 서로 관계가 없는 물체들이 상호 작용을 하기 위해서 사용하는 장치나 시스템
+```java
+public interface TV {
+	public int MIN_VOLUME = 0;
+	public int MAX_VOLUME = 100;
+
+	public void turnOn();
+	public void turnOff();
+	public void changeVolume(int volume);
+	public void changeChannel(int channel);
+}
+```
+이런 식으로 마치 함수의 선언만 하는 것처럼 작성한다. 또한 인터페이스에서 만든 변수는 상수처럼 사용 가능하다.
+- - -
+# 인터페이스 사용하기
+```java
+public class LedTV implements TV{
+    public void on(){
+        System.out.println("켜다");
+    }
+    public void off(){
+        System.out.println("끄다");   
+    }
+    public void volume(int value){
+        System.out.println(value + "로 볼륨조정하다.");  
+    }
+    public void channel(int number){
+        System.out.println(number + "로 채널조정하다.");         
+    }
+}
+```
+implements라는 키워드를 이용함을 알 수 있다. 이클립스 툴을 이용하여 인터페이스를 이식하면, 세부구현을 제외한 모든 메소드는 복사 붙여넣기 됨을 확인할 수 있다.
+- - -
+# 인터페이스의 default method
+인터페이스에서 default를 붙여 구현할 수 있다.
+```java
+default int exec(int i, int j) {
+  return i + j;
+}
+```
+기존의 인터페이스에서 선언한 메소드는 인터페이스를 이식해 만든 클래스에서 추가 구현해줘야 하는데, 이 default를 이용한 친구는 인터페이스 내에서 구현을 끝낸다. 사용법은 다른 일반적인 메소드들과 똑같이 구현한다.
+```java
+public static int exec2(int i, int j) {
+	return i + j;
+}
+```
+또한 인터페이스 내에서 static을 이용하여 default처럼 클래스에서 추가 구현할 필요없이 구현을 끝낼 수 있는데, default와 다른점이 있다면, 실제 사용시
+```java
+  cal.plus(3, 4);
+  cal.exec(3, 4); //기존의 메소드 호출법
+
+  Calculator.exec2(3, 4);//static메소드 호출법
+```
+기존의 메소드 호출시엔 ```인터페이스명.메소드명``` 이렇게 호출했다면, static메소드 호출법은 ```참조변수.메소드명``` 이런 식으로 호출한다.
+- - -
+# 내부클래스
+>내부클래스 : 클래스 안에 선언된 클래스, 어느 위치에 선언되느냐에 따라 4가지 모양을 가지게 된다.
+
+1. 중첩 클래스(인스턴스 클래스)
+```java
+public class InnerExam1 {
+	class Cal{  //필드를 선언하는 위치에 클래스 생성
+		int value = 0;
+		public void plus() {
+			value++;
+		}
+	}
+
+	public static void main(String[] args) {
+		InnerExam1 t = new InnerExam1();
+    //내부의 Cal 클래스 사용하려면 우선 InnerExam1 생성해야함
+		InnerExam1.Cal cal = t.new Cal();   //이런 식으로 참조변수 생성함
+		cal.plus();
+		System.out.println(cal.value);
+	}
+}
+```
+2. 정적 중첩 클래스(static 클래스)
+```java
+public class InnerExam2 {
+	static class Cal{  //static으로 바뀜
+		int value = 0;
+		public void plus() {
+			value++;
+		}
+	}
+
+	public static void main(String[] args) {
+		InnerExam2.Cal cal = new InnerExam2.Cal();
+    //InnerExam2 를 따로 생성하지 않고 바로 참조변수 생성 가능
+		cal.plus();
+		System.out.println(cal.value);
+	}
+}
+```
+3. 지역 중첩 클래스(지역 클래스)
+```java
+public class InnerExam3 {
+	public void exec() { //exec이라는 void메서드 안에 내부클래스가 있음
+		class Cal{  
+			int value = 0;
+			public void plus() {
+				value++;
+			}
+		}
+
+		Cal cal = new Cal();
+		cal.plus();
+		System.out.println(cal.value);
+	}
+
+	public static void main(String[] args) {
+		InnerExam3 t = new InnerExam3();
+		t.exec();
+	}
+}
+```
+4. 익명 중첩 클래스
+```java
+public abstract class Action {
+	 public abstract void exec();
+}
+```
+추상 클래스를 하나 선언한다. 기존에는 추상 클래스를 이용하기 위해 하나의 클래스(여기선 MyClass.java)를 더 만들어서 참조변수 생성을 도왔다.
+```java
+Action action = new MyAction();
+action.exec();
+```
+이런 식으로 생성을 도왔다. 하지만 여간 불편한게 아니다. 예를 들면, 한 번만 생성하면 되는 일이라서 한 번만 생성해 줄 건데 그 한 번을 위해 만드는게 귀찮다. 따라서 이때 익명 중첩 클래스를 사용하게 된다.
+```java
+Action action = new Action() {
+			@Override
+			public void exec() {
+				System.out.println("exec");
+			}
+};
+action.exec();
+```
+생성자 다음에 중괄호를 열고 닫음을 확인할 수 있다. 해당 생성자 이름에 해당하는 클래스를 상속받는 이름없는 객체를 만든다는 것을 뜻한다. 아까도 말햇듯이 __Action을 상속받는 클래스가 해당 클래스에서만 사용되고 다른 클래스에서는 사용되지 않는 경우에 이처럼 익명 중첩 클래스를 사용한다.__
+- - -
+# Exception
