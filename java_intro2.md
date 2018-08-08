@@ -294,3 +294,157 @@ action.exec();
 생성자 다음에 중괄호를 열고 닫음을 확인할 수 있다. 해당 생성자 이름에 해당하는 클래스를 상속받는 이름없는 객체를 만든다는 것을 뜻한다. 아까도 말햇듯이 __Action을 상속받는 클래스가 해당 클래스에서만 사용되고 다른 클래스에서는 사용되지 않는 경우에 이처럼 익명 중첩 클래스를 사용한다.__
 - - -
 # Exception
+
+>만일 10/0 을 k라는 정수형 변수에 저장하라는 코드를 짠다 하자. 10 / 0이 말이 되는가? 따라서 불가능한 연산이라 java파일을 컴파일하면 불가능한 연산이라는 예외를 보여주며 컴파일을 종료시킨다.
+
+이처럼 코드를 짤 때도 개발자가 예외처리를 하고싶은 구문이 있을 것이다. 그 예외처리는 아래처럼 진행한다.
+```java
+try{
+
+}catch(예외클래스 변수명){
+
+}finally{
+
+}
+```
+
+- try : 수행할 코드, 예외 발생 가능성이 있는 블록
+- catch : 예외 발생 시, 예외 처리할 블록
+- finally : 예외 발생 여부에 상관없이 반드시 실행되는 블록, **생략 가능**
+
+```java
+///예시
+public static void main(String[] args) {
+		int i = 10;
+		int j = 0;
+		try {
+			int k = i/j;
+			System.out.println(k);
+		}catch(ArithmeticException e) {
+			System.out.println("0불가능"+e.toString());
+		}finally {
+			System.out.println("무조건실행");
+		}
+		System.out.println("main end");
+	}
+```
+
+```java
+///위 파일 컴파일 결과창
+0불가능java.lang.ArithmeticException: / by zero
+무조건실행
+mainend
+```
+- - -
+# Throws
+throws는 예외가 발생했을때 예외를 호출한 쪽에서 처리하도록 던져준다.
+```java
+public class ExceptionExam {
+	public static void main(String[] args) {
+		int i = 10;
+		int j = 0;
+		try {
+		int k = divide(i,j);
+		System.out.println(k);
+		}catch(ArithmeticException e){
+			System.out.println(e.toString());
+		}
+	}
+
+	public static int divide(int i, int j) throws ArithmeticException{
+		int k = i/j;
+		return k;
+	}
+}
+```
+이처럼 메서드 옆에 throw라는 키워드를 붙여서 메서드를 호출한 쪽에서 처리할 수 있도록 만들어준다.
+- - -
+# Exception 발생시키기
+```java
+public class ExceptionExam {
+	public static void main(String[] args) {
+		int i = 10;
+		int j = 0;
+
+		try {
+		int k = divide(i,j);
+		System.out.println(k);
+		}catch(IllegalArgumentException e) {
+			System.out.println(e.toString());
+		}
+	}
+
+	public static int divide(int i, int j) throws IllegalArgumentException{
+		if(j == 0) {
+			throw new IllegalArgumentException("0으로 나눌 수 없습니다!");
+
+		}
+		int k = i/j;
+		return k;
+	}
+}
+```
+j가 0일 경우에 new 연산자를 통하여 IllegalArgumentException 객체가 만들어 진다.
+
+또한 throws가 아닌 **throw** 라는 점을 기억하자.
+```java
+///컴파일 결과
+java.lang.IllegalArgumentException: 0으로 나눌 수 없습니다!
+```
+- - -
+# 사용자 정의 Exception
+
+사용자가 직접 예외 클래스를 정의해서 예외처리할 수도 있다.
+
+사용자는 Exception 이나 RuntimeException을 상속받아서 새로운 exception클래스를 만들 수 있다. 굳이 사용자 정의 Exception을 만들 이유는 클래스 이름만 확인해도 개발자가 한눈에 들어올 수 있도록 하기 위해서이다.
+- checked exception : Exception을 상속받은 클래스
+
+ 오류처리를 하지 않으면 컴파일 오류가 발생하기 때문에 반드시 오류를 처리해야하는 exception이다.
+- unchecked exception : RuntimeException을 상속받은 클래스
+
+ 오류처리를 반드시 하지 않아도 컴파일 상에서는 오류를 발생시키진 않는다. 그런데 모든 예외상황에 대해서는 적절하게 예외를 처리해주는 것이 조금 더 안정적이게 수행될 것이다.
+
+
+```java
+public class BizException extends RuntimeException{
+	public BizException(String msg) {
+		super(msg);
+	}
+	public BizException(Exception ex) {
+		super(ex);
+	}
+}
+```
+
+런타임 예외 클래스를 부모로 받아 만든 사용자 정의 Exception이다.
+```java
+public class BizService {
+	public void bizMethod(int i) throws BizException{
+		System.out.println("비지니스 메소드 시작");
+
+		if(i<0)
+			throw new BizException("매개변수 i는 0 이상이어야 합니다.");
+
+		System.out.println("비지니스 메소드 종료");
+	}
+}
+```
+```java
+public class BizExam {
+
+	public static void main(String[] args) {
+		BizService biz = new BizService();
+		biz.bizMethod(5);
+		try {
+		biz.bizMethod(-3);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+```
+사용자가 직접 만든 예외클래스라는 점을 제외하곤 사용법은 기존 예외처리와 똑같다.
+
+# 자바 입문 끝
+### 프로그래머스 '자바 입문' 강의를 듣고 작성했음을 알림
+https://programmers.co.kr/learn/courses/5/
