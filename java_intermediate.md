@@ -58,33 +58,74 @@ StringBuffer클래스는 자기 자신을 반환하므로 메소드 체이닝이
 따라서 우린 ```append().append().append().toString();``` 처럼 이을 수 있다.
 - - -
 # 스트링 클래스의 문제점
+
 ```java
 public class StringExam2 {
 	public static void main(String[] args) {
-		String str1 = "hello world";
-		String str2 = str1.substring(5);
-		System.out.println(str1);
-		System.out.println(str2);
-
-		String str3 = str1 + str2;
-		System.out.println(str3);
-
-		String str4 = new StringBuffer().append(str1).append(str2).toString();
-		System.out.println(str4);
-
-		String str5 = "";
+    //1. 반복적인 +연산 사용 (new 사용)
+		String str1 = "";
 		for(int i = 0 ; i < 100 ; i++) {
-			str5 = str5 + "*";
-		} //컴퓨터가new100번하게됨 -> java에서 프로그램의 속도가 느려짐->지양해야함
-		System.out.println(str5);
+			str1 = str1 + "*";
+		}
+		System.out.println(str1);
 
+
+    //2. StringBuffer의 체이닝메서드 사용
 		StringBuffer sb = new StringBuffer();
 		for(int i = 0 ; i < 100 ; i++) {
 			sb.append("*");
 		}
-		String str6 = sb.toString();
-		System.out.println(str6);
+		String str2 = sb.toString();
+		System.out.println(str2);
 	}
 }
 ```
-------세부사항 더 적어야해
+문자열에 문자열을 더하는 식은 ```str + str```라고 적는데, 사실 +연산은 StringBuffer클래스의 append메소드를 이용하여 문자열이 누적되고, 그 누적이 끝난 문자열을 toString()을 통하여 String객체로 바꿔주는 연산이다.
+
+따라서 반복문 내에서 + 연산을 진행하면 new연산을 반복하게되고, 프로그램 속도가 느려지므로 지양해야한다.
+
+해결책으로는, StringBuffer의 체이닝메서드를 이용하면 new연산을 하지 않게되어 속도가 훨씬 빨라진다.
+- - -
+# Math클래스
+>코싸인, 싸인, 탄젠트, 절대값, 랜덤값을 구할 수 있는 클래스
+
+- Math클래스는 생성자가 private으로 되어 있기 때문에 new 연산자를 이용하여 객체를 생성할 수 없다.
+- 객체를 생성할 수는 없지만 모든 메소드와 속성이 static으로 정의되어 있기 때문에 객체를 생성하지 않고도 사용할 수 있다.
+
+모든 메소드가 static으로 설정되어있기 때문에 ```클래스명.메소드명```으로 사용한다.
+
+```java
+Math.max(v1, v2) : v1과 v2중 큰 값 리턴
+Math.min(v1, v2) : v1과 v2중 작은 값 리턴
+Math.abs(v1) : v1의 절대값 리턴
+Math.random() : 0 ~ 1 사이에 double값 리턴
+Math.sqrt(v1) : v1의 제곱근 리턴
+Math.pow(v1, v2) : v1의 v2승
+Math.log10(v1) : 로그 10의 v1 (  ex> log10(100) = 2  )
+```
+- - -
+# java.util 패키지
+
+java.lang 패키지 다음으로 많이쓰는 java.util 패키지이다.
+
+날짜와 관련된 **date, calender 클래스** , 자료구조와 관련된 **collection framework클래스** 유용한 클래스를 많이 가지고 있음
+
+>deprecated란? "더이상 지원하지 않으니 사용하지 않는 것이 좋다"의 의미
+- - -
+# Collection Framework
+
+자료를 다룰 수 있는 자료구조 클래스
+
+collection framework에서 가장 기본이 되는 인터페이스는 collection interface이다.
+
+1. Collection interface는 여기에 자료가 있다는 것을 표현함. 중복도 허용하며, 자료가 저장되는 순서는 기억 못함. collection interface가 가지는 대표적인 메소드는 add(), size(), iterator()이다.
+
+2. Iterator interface는 자료를 하나씩 꺼낼 수 있음. 가지는 메소드는 hasNext(), next()를 가진다.
+
+3. Set interface는 중복을 허용하지 않는 자료구조를 표현한 인터페이스입니다. collection interface를 상속받고 있으며 가지는 메소드는 add()가 있다.
+
+4. List interface는 collection interface를 상속받고 있다. 자료를 꺼내주는 get() 메서드를 가진다.
+
+5. Map interface는 key 와 value를 가지며 put() 메서드를 이용하여 함께 저장합니다. 꺼낼때는 key를 이용한 get()메서드를 이용한다.
+- - -
+# 
