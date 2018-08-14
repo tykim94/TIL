@@ -157,7 +157,6 @@ public class CharIOExam01 {
 		}
 
 		System.out.println(line);
-//우린 키보드입력을 받아서 읽었지만 파일입력을 받을수도 있고 연결리스트에서 받을수도있다.
 	}
 
 }
@@ -169,6 +168,46 @@ public class CharIOExam01 {
 
 # Char 단위 입출력(File)
 
+```java
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+
+public class CharIOExam02 {
+
+	public static void main(String[] args) {
+
+		BufferedReader br = null;
+		PrintWriter pw = null;
+
+		try {
+			br = new BufferedReader(new FileReader("src/IO/charIOExam02.java"));
+			pw = new PrintWriter(new FileWriter("test.txt"));
+			String line = null;
+			while((line = br.readLine()) != null) {
+				pw.println(line);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			pw.close();
+			try {
+				br.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+
+	}
+}
+```
+file을 char방식으로 읽는 과정을 설명하고 있다. 특이한 것이라면 PrintWriter를 들 수 있다.
+>원래 PrintWriter 자체가 파일을 받는 방식도 버전을 거듭하며 생겼다. 따라서 FileWriter 꼭 써줄필요없지만 데코레이터 패턴으로 끼워쓰는 방식을 설명하기 위해 일부러 데코레이터 패턴으로 작성했다.
+
+PrintWriter가 수정된 사항이기 때문에
 - - -
 
 # 어노테이션
