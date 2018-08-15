@@ -205,9 +205,74 @@ public class CharIOExam02 {
 }
 ```
 file을 char방식으로 읽는 과정을 설명하고 있다. 특이한 것이라면 PrintWriter를 들 수 있다.
->원래 PrintWriter 자체가 파일을 받는 방식도 버전을 거듭하며 생겼다. 따라서 FileWriter 꼭 써줄필요없지만 데코레이터 패턴으로 끼워쓰는 방식을 설명하기 위해 일부러 데코레이터 패턴으로 작성했다.
+>원래 PrintWriter 자체가 파일을 받는 방식도 버전을 거듭하며 생겼다. 따라서 FileWriter 꼭 써줄필요없지만 데코레이터 패턴으로 끼워쓰는 방식을 설명하기 위해 일부로 데코레이터 패턴으로 작성했다.
 
-PrintWriter가 수정된 사항이기 때문에
+PrintWriter가 버전을 거듭하며 수정된 사항이기 때문에 따로 close메소드를 사용하여 닫아줘야 한다.
 - - -
 
 # 어노테이션
+
+>annotation : 주석(달기)
+
+java5에서 부터 추가된 기능이다. **@ 표시** 로 시작하며 **at** 이라고 읽는다. 우리는 오버라이드를 할때 ```@Override``` 라고 봤던 적이 있는데 이때 사용한 표현이다.
+
+```java
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Count100 {
+
+}
+```
+ Count100이란 어노테이션을 생성했다고 봐도 좋다. 어노테이션을 만들때는 ```@Retention(RetentionPolicy.RUNTIME)```을 붙여야 JVM 실행 시 감지할 수 있다고 하니 반드시 작성한다.
+```java
+public class MyHello {
+
+	@Count100
+	public void hello() {
+		System.out.println("hello");
+	}
+}
+```
+이렇게 우린 평범한 클래스에 골뱅이 한 줄 추가했다.
+
+```java
+import java.lang.reflect.Method;
+
+public class MyHelloExam {
+
+	public static void main(String[] args) {
+
+		MyHello hello = new MyHello();
+		try {
+			Method method = hello.getClass().getDeclaredMethod("hello");
+			//getClass는 Object 클래스가 가지고 있는 메서든데
+			//모든 클래스는 Object 클래스를 가지니 사용가능
+
+			//getClass로 해당 인스턴스를 만들때 사용한 클래스의 정보를 리턴 후
+			//getDeclaredMethod라는 메서드를 호출하게 되면 그 클래스에 대한 정보를
+			//얻고 그 정보로부터 hello라는 이름의 메서드의 정보를 구해라 라는 의미
+
+			if(method.isAnnotationPresent(Count100.class)) {
+				//이 if가 의미하는 것은 메서드가 가지고있는 isAnnotationPresent라는
+				//메서드가 특정 어노테이션이 메소드에 적용이 되어있는지 알아낼 수 있는 부분
+
+				//저 count100이라는 annotation을 적용하고 있어요? 라는 의미임
+				//맞으면 true반환
+				for( int i = 0 ; i < 100 ; i++ ) {
+					hello.hello();
+				}
+			}else {
+				hello.hello();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+	}
+}
+```
+참고로 try-catch문은 이클립스에서 요구해주는 항목이므로 내 의견과 상관없이 넣어주는것이니 신경 안써도 된다.
+
+**우리가 직접 어노테이션이 만들어 사용하는 경우는 거의 없다.** 직접 만드는 경우는 자바를 훨씬 능숙하게 활용할때 쯤 사용할 것이고, **누군가가 만든 어노테이션을 사용할때는 설명서가 전부 달려있으니 개념만 알아보도록 하자.** 말 그대로 ***주석*** 이라는 의미이므로 가볍게 생각하자.
