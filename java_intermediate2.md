@@ -276,3 +276,283 @@ public class MyHelloExam {
 참고로 try-catch문은 이클립스에서 요구해주는 항목이므로 내 의견과 상관없이 넣어주는것이니 신경 안써도 된다.
 
 **우리가 직접 어노테이션이 만들어 사용하는 경우는 거의 없다.** 직접 만드는 경우는 자바를 훨씬 능숙하게 활용할때 쯤 사용할 것이고, **누군가가 만든 어노테이션을 사용할때는 설명서가 전부 달려있으니 개념만 알아보도록 하자.** 말 그대로 ***주석*** 이라는 의미이므로 가볍게 생각하자.
+
+- - -
+
+# 쓰레드(Thread)란?
+
+>운영체제(Operating System) : 컴퓨터의 하드웨어를 사용하게 해주는 프로그램
+
+우리 대부분은 MS window라는 운영체제를 사용하고 있다. 윈도우가 고장이 나면 컴퓨터를 아얘 사용하지 못하는 경우가 생긴다. 요즘 사용하는 대부분의 운영체제들은 여러가지 작업을 수행할 수 있다. 워드작업을 하면서 음악도 듣고, 인터넷 검색도 할 수 있다.
+
+윈도우 작업관리자에 들어가면 현재 실행되는 프로세스들을 확인할 수 있다. 운영체제 입장에서 보면 자바도 하나의 프로세스도 실행하는 것이다. 워드작성시 맞춤법을 자동으로 검사해주는 것을 본 기억이 있을 것이다. 우리가 글을 입력할 때, 워드프로세서는 백그라운드에서 우리가 입력한 글을 검사한다. 워드프로세서가 하나의 프로세스라면 하나의 프로세스 안에서도 여러개의 흐름이 동작할 수 있다. 이것을 쓰레드(Thread)라고 부른다.
+
+자바는 JVM만 있다면 어떤 운영체제에서든지 동작한다. 자바를 만든 사람들은 자바 프로그램 안에서 여러개의 흐름이 흘러가게 하도록 하고싶었다. 우리가 만든 자바 프로그램이 동시에 작업하게 하고 싶다면, 우린 쓰레드(Thread)를 공부해야 한다.
+
+- - -
+
+# 쓰레드 만들기(extend Thread)
+
+```java
+public class MyThread1 extends Thread {
+
+	String str;
+	public MyThread1(String str) {
+		this.str = str;
+	}
+
+
+	@Override
+	public void run() {
+		for(int i = 0; i < 10 ; i++ ) {
+			System.out.println(str);
+
+			try {
+				Thread.sleep((int)(Math.random()*1000));
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			};
+		}
+	}
+
+
+}
+```
+이렇게 쓰레드를 구성한다. run이라는 메서드를 오버라이드하여 뭐든 시키고 싶은 일을 시킨다. 우린 생성할 때 받아온 str을 10번 찍게 만들 것이고, 컴퓨터가 너무 빠르니 컴퓨터에게 반복문 돌아가는 시간을 벌어주기위해 sleep메서드를 사용한다.
+```java
+public class ThreadExam {
+
+	public static void main(String[] args) {
+		MyThread1 t1 = new MyThread1("*");
+		MyThread1 t2 = new MyThread1("-");
+
+		t1.start(); //수행 흐름이 2개가 됨
+		t2.start(); //수행 흐름이 3개가 됨
+
+		System.out.println("main end !!!");
+		//메인 쓰레드가 종료되도 프로그램이 종료되진 않음.
+		//다른 쓰레드 모두 끝나야 프로그램이 종료됨
+	}
+
+}
+```
+쓰레드 객체를 2개 만들어서 각각 main에서 돌렸다. **start메서드** 를 통해서 run메서드를 돌렸고, 비록 main메서드는 시작하자마자 끝나지만, t1과 t2는 main안에 속해있지만 계속 돌아가는 것을 확인할 수 있다.
+
+ - - -
+
+# 쓰레드 만들기(implements Runnable)
+
+우리는 클래스에 Thread라는 클래스를 상속받아서 쓰레드를 만들었다. 우리는 자바가 단일 상속만 지원한다는 사실을 안다. 그러면 쓰레드를 상속 받을 수 없다. 이럴때 사용하는 것이 Runnable이다.
+
+```java
+public class MyThread2 implements Runnable {
+
+	String str;
+	public MyThread2(String str) {
+		this.str = str;
+	}
+
+
+	@Override
+	public void run() {
+		for(int i = 0; i<10 ; i++ ) {
+			System.out.println(str);
+			try {
+				Thread.sleep((int)(Math.random()*100));
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+}
+```
+
+기존엔 쓰레드를 상속받았지만 이번엔 runnable interface를 구현하도록 바꿨다. runnable interface는 애초에 run 매서드를 가지고있기 때문에 구현만 해주면 된다. **자바는 단일 상속만 지원하기 때문에 다른 클래스를 상속받고있을때 쓰레드 클래스를 상속받을 수 없다.** 따라서 다른 클래스를 상속받고 있다면 runnable 인터페이스를 이용한다.
+
+```java
+public class MyThreadExam2 {
+
+	public static void main(String[] args) {
+		MyThread2 t1 = new MyThread2("*");
+		MyThread2 t2 = new MyThread2("-");
+
+		//쓰레드가 run을 직접 호출x, start로 호출함
+		//myt2는 thread상속받지 않아서 start메서드 안가짐
+		//이상태에서 start메서드를 받을 수 없다.
+
+		Thread thread1 = new Thread(t1);
+		Thread thread2 = new Thread(t2);
+		//Thread클래스를 이용하여 진짜 Thread객체를 만들어줘야함
+
+		thread1.start();
+		thread2.start();
+
+		System.out.println("main end!!!");
+	}
+}
+```
+
+- - -
+
+# 쓰레드와 공유 객체
+
+여럿 생성될 쓰레드가 하나의 클래스(객체)를 공유하는 법을 배우자.
+
+```java
+public class MusicBox {
+
+	public void playMusicA() {
+		for(int i = 0; i<10; i++) {
+			System.out.println("신나는 음악!!!");
+
+			try {
+				Thread.sleep((int)(Math.random() * 1000));
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+
+	public void playMusicB() {
+		for(int i = 0; i<10; i++) {
+			System.out.println("슬픈 음악!!!");
+
+			try {
+				Thread.sleep((int)(Math.random() * 1000));
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+
+
+	public void playMusicC() {
+		for(int i = 0; i<10; i++) {
+			System.out.println("카페 음악!!!");
+
+			try {
+				Thread.sleep((int)(Math.random() * 1000));
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+}
+```
+위 코드는 공유할 MusicBox라는 클래스다.
+```java
+public class MusicPlayer extends Thread {
+	int type;
+	MusicBox musicBox;
+
+	public MusicPlayer(int type, MusicBox musicBox) {
+		this.type = type;
+		this.musicBox = musicBox;
+	}
+
+	@Override
+	public void run() {
+		switch (type) {
+		case 1:
+			musicBox.playMusicA();
+			break;
+		case 2:
+			musicBox.playMusicB();
+			break;
+		case 3:
+			musicBox.playMusicC();
+			break;
+		}
+	}
+}
+```
+MusicBox를 플레이 할 MusicPlayer 클래스를 만들었으며 쓰레드 클래스를 상속받았다.
+```java
+public class MusicBoxExam {
+
+	public static void main(String[] args) {
+		MusicBox box = new MusicBox();
+
+		MusicPlayer kang = new MusicPlayer(1, box);
+		MusicPlayer kim = new MusicPlayer(2, box);
+		MusicPlayer lee = new MusicPlayer(3, box);
+
+		kang.start();
+		kim.start();
+		lee.start();
+	}
+}
+
+```
+쓰레드 클래스를 상속받은 MusicPlayer를 이용하여 MusicBox라는 객체를 공유하는 것을 확인할 수 있다.
+
+- - -
+
+# 동기화 메소드와 동기화 블록
+
+>Synchronized : 동기화
+
+위와 다른것은 Synchronized 라는 문구를 붙여준 것 뿐이다.
+```java
+public class MusicBox {
+
+	public synchronized void playMusicA() {     //수정
+		for(int i = 0; i<10; i++) {
+			System.out.println("신나는 음악!!!");
+
+			try {
+				Thread.sleep((int)(Math.random() * 1000));
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+
+	public synchronized void playMusicB() {    //수정
+		for(int i = 0; i<10; i++) {
+			System.out.println("슬픈 음악!!!");
+
+			try {
+				Thread.sleep((int)(Math.random() * 1000));
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+
+
+	public  void playMusicC() {
+		for(int i = 0; i<10; i++) {
+			synchronized (this) {                  //수정
+				System.out.println("카페 음악!!!");
+			}
+
+			try {
+				Thread.sleep((int)(Math.random() * 1000));
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+
+
+
+}
+```
+공유객체인 MusicBox의 메서드 선언 또는 메서드 안에 Synchronized 를 삽입하였다. 먼저 호출한 메소드가 객체MusicBox의 사용권을 얻게 되는데, 이 객체 사용권을 모니터링 락(Monitoring Lock) 이라고 부른다. 만일 kang이라는 플레이어가 먼저 start()하게 되면 kang은 ```신나는음악!!!``` 을 10번 출력할때까지 **Monitoring Lock** 을 kang이 가지게 된다. Synchronized로 동기화 해줬으니 동기화된 ```슬픈 음악``` 이나 ```카페 음악```은 출력이 불가능하다.
+
+Synchronized는 카페 음악에서 확인할 수 있겠지만 메서드 선언에서 쓸 뿐만 아니라 메서드 안에서도 동기화가 가능하다.
