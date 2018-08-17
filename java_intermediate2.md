@@ -556,3 +556,238 @@ public class MusicBox {
 공유객체인 MusicBox의 메서드 선언 또는 메서드 안에 Synchronized 를 삽입하였다. 먼저 호출한 메소드가 객체MusicBox의 사용권을 얻게 되는데, 이 객체 사용권을 모니터링 락(Monitoring Lock) 이라고 부른다. 만일 kang이라는 플레이어가 먼저 start()하게 되면 kang은 ```신나는음악!!!``` 을 10번 출력할때까지 **Monitoring Lock** 을 kang이 가지게 된다. Synchronized로 동기화 해줬으니 동기화된 ```슬픈 음악``` 이나 ```카페 음악```은 출력이 불가능하다.
 
 Synchronized는 카페 음악에서 확인할 수 있겠지만 메서드 선언에서 쓸 뿐만 아니라 메서드 안에서도 동기화가 가능하다.
+
+- - -
+
+# 쓰레드와 상태 제어
+
+쓰레드는 시작되었다가 멈췄다가를 반복한다. start()메서드를 실행하면 실행 가능한 상태인 runnable과 실행상태인 running을 왔다 갔다하게 됩니다.
+
+간혹 sleep메서드나 wait메서드를 실행하여 잠시 쓰레드의 일시정지상태로 들어갈 수 있다. 이를 blocked상태가 됐다고 한다. sleep메서드는 모니터링 락을 유지하지만 wait메서드는 모니터링 락을 버리게 됩니다.
+
+쓰레드의 run메서드가 종료되면 쓰레드가 종료되는데, dead상태가 된다. 쓰레드에 yield메서드가 호출이 되면 다른 쓰레드에게 자원을 양보하게 된다. 그 의미는 양보받은 쓰레드는 더욱 빠르게 돌아갈 수 있다.
+- - -
+
+# 쓰레드와 상태 제어(join)
+
+join()메소드는 쓰레드가 멈출때까지 기다리게 한다.
+
+```java
+public class MyThread5 extends Thread{
+	public void run() {
+		for(int i=0;i<5;i++) {
+			System.out.println("MyThread5 : " + i);
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+	}
+}
+```
+
+```java
+public class JoinExam {
+
+	public static void main(String[] args) {
+		MyThread5 thread = new MyThread5();
+		thread.start();
+
+		System.out.println("시작");
+
+
+		try {
+			thread.join();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+
+		System.out.println("종료!");
+	}
+
+}
+```
+
+이처럼 join메서드를 쓰게되면 쓰레드가 멈출때까지 기다리므로, for문을 5번돌때까지 ```종료!```는 확인할 수 없다.
+
+- - -
+
+# 쓰레드와 상태제어(wait, notify)
+
+wait와 notify는 동기화된 블록안에서 사용해야 한다. wait를 만나게 되면 해당 쓰레드는 해당 객체의 모니터링 락에 대한 권한을 가지고 있다면 모니터링 락의 권한을 놓고 대기한다.
+
+```java
+public class ThreadB extends Thread {
+	int total;
+
+	public void run() {
+		synchronized (this) {
+			for(int i = 0; i<5; i++) {
+				System.out.println(i+"를 더합니다.");
+				total += i;
+
+				try {
+					Thread.sleep(500);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+
+			notify(); //쓰레드를 깨울 수 있는 메서드 호출하게 함
+		}
+	}
+}
+```
+
+```java
+public class ThreadA {
+	public static void main(String[] args) {
+		ThreadB b = new ThreadB();
+		b.start();
+		//run을 실행시키며 모니터링 락을 획득하게 됨
+		//b에 대하여 동기화 블록 설정한 것을 기억하라
+
+		synchronized (b) {
+			try {
+				System.out.println("b가 완료될때까지 기다립니다.");
+				b.wait();
+			}catch(InterruptedException e) {
+				e.printStackTrace();
+			}
+			System.out.println("Total is : " + b.total);
+		}
+
+	}
+}
+```
+wait메서드를 이용하여 main쓰레드는 정지하게되고, for문을 5번 돌고 난 후, notify메서드를 만나게 되는데 그 때, main쓰레드는 깨어나게되고 main 남은 코드를 수행하게된다.
+
+- - -
+
+# 데몬 쓰레드
+
+>데몬(Daemon) : 보통 리눅스와 같은 유닉스계열의 운영체제에서 백그라운드로 동작하는 프로그램을 말한다. 윈도우에서는 주로 서비스로 불린다.
+
+- 데몬쓰레드는 자바프로그램을 만들 때 백그라운드에서 특별한 작업을 처리하게 하는 용도로 만든다.
+- 데몬쓰레드는 일반 쓰레드(main 등)가 모두 종료되면 강제적으로 종료되는 특징을 가지고 있다.
+
+```java
+public class DaemonThread implements Runnable {
+
+	@Override
+	public void run() {
+		while(true) {
+			System.out.println("데몬 쓰레드가 실행중입니다.");
+
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				break;//sleep하는 동안에 exception일어나면 빠져나가야 하므로 break;넣음
+			}
+		}
+
+	}
+
+	public static void main(String[] args) {
+		Thread thread = new Thread(new DaemonThread());
+		thread.setDaemon(true);
+		thread.start();
+
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("메인 쓰레드가 종료됩니다.");
+	}
+
+
+}
+```
+
+원래는 while(true)로 무한루프를 돌게 되어있지만 데몬쓰레드 특성상 쓰레드가 모두 종료되면 강제로 종료되는 특징을 지닌다. 따라서 메인이 끝나는 동시에 쓰레드도 강제 종료됨을 확인할 수 있다.
+
+- - -
+
+# 람다식(Lambda)
+
+>람다식 == 익명메서드
+
+```java
+public class LambdaExam {
+
+	public static void main(String[] args) {
+		new Thread(new Runnable() {
+
+			@Override
+			public void run() {
+				for(int i = 0; i<10; i++) {
+					System.out.println("hello");
+				}
+
+			}
+
+		}).start();
+	}
+```
+자바는 매서드만 매개변수로 전달할 방법이 없고, 우리가 이때까지 했던 것처럼 인스턴스만 가능했다. 따라서 우린 항상 객체를 만들어서 메서드를 전달했지만 여간 불편한게 아니었다. 따라서 이를 해결하기위해 람다표현식이 등장했다.
+
+객체 자체를 직접 생성할 필요가 없다. 따라서 우린 new Runnable()를 없앤다. 그리고 java api에서 제공하는 람다표현식 문법을 삽입한다. 수정하면 아래처럼 바뀐다.
+```java
+public class LambdaExam {
+
+	public static void main(String[] args) {
+		new Thread(()-> {
+				for(int i = 0; i<10; i++) {
+					System.out.println("hello");
+				}
+
+		}).start();
+	}
+
+}
+```
+()-> 라는 표현을 삽입하면 람다표현식 문법을 사용하여 객체 생성없이 바로 메서드 사용이 가능해진다. 따라서 우린 바로 start메서드를 사용하는 것을 확인할 수 있다.
+
+- - -
+
+# 람다식 기본문법
+
+>람다표현식 : (매개변수목록)->{실행문}
+
+```java
+public interface Compare {
+	public int compareTo(int value1, int value2);
+}
+```
+인터페이스만 간단히 구성했다.
+```java
+public class CompareExam {
+
+	public static void exec(Compare compare) {
+		int k = 10;
+		int m = 20;
+		int value = compare.compareTo(k, m);
+		System.out.println(value);
+	}
+
+
+	public static void main(String[] args) {
+		exec((i,j) ->{
+
+			return i - j;
+		});
+
+	}
+
+}
+```
+우리는 항상 메인에서 객체를 생성하여 메서드를 이용했지만, 마치 우리가 C언어를 공부할 때 함수를 사용하듯이 따로 객체의 생성없이 바로 exec이란 메서드를 사용하여 value값을 얻어내는 것을 확인할 수 있다. 이런 간편함을 위해 java 8에서 람다식을 업데이트하였다.
