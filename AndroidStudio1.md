@@ -320,3 +320,37 @@ protected void onCreate(Bundle savedInstanceState) {
 - d : **int priority** - 사운드 우선 순위
 - e : **int loop** - 재생 반복 1은 1회, 2는 2회, -1은 무한 반복
 - f : **float rate** - 재생 속도, 1은 정상 속도, -1은 느리게, 2는 빠르게
+
+- - -
+
+## 15. 나인패치 이미지
+
+- - -
+
+## 16. 경고창 만들기
+
+1. MainActivity.java에 들어가서 아래 코드를 입력한다.
+
+```java
+AlertDialog.Builder alert_confirm = new AlertDialog.Builder(MainActivity.this);
+        alert_confirm.setMessage("지금 실행되고 있는 앱을 종료하겠습니까?").setCancelable(false).setPositiveButton("네", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                finish();
+            }
+        }).setNegativeButton("아뇨", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                return;
+            }
+        });
+        AlertDialog alert = alert_confirm.create();
+        alert.show();
+```
+
+메서드를 계속 이어 사용하는 체이닝 메서드 문법을 이용하여 경고창과 아니오, 예 창을 한번에 만들었다. ```alert_confirm``` 부터 ```AlertDialog``` 바로 전까지 한 문장으로 체이닝 되어있는 것을 확인할 수 있다. onClick 메서드가 연거푸 사용되는 만큼 오버라이딩되어 사용하는 것도 확인할 수 있다.
+
+- - -
+
+## 17. 앱의 인트로 화면 만들기
