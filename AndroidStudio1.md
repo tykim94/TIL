@@ -1,4 +1,4 @@
-# 안드로이드 1일
+# 안드로이드
 - - -
 
 ## 1. 안드로이드어플 IDE 다운로드
@@ -126,4 +126,197 @@ Infer Constraints 라고 뜨면 잘 찾았다.
 
 - - -
 
-## 10. 
+## 10. 버튼 클릭 시 반응하는 기능
+
+1. 버튼을 만든다.
+
+2. MainActivity.java 파일에 들어간다.
+
+3. 코드를 작성한다.
+
+```java
+Button button1 = (Button) findViewById(R.id.button1);
+button1.setOnClickListener(new View.OnClickListener() {
+    public void onClick(View V) {
+        Toast.makeText(getApplicationContext(), "버튼이 눌러졌습니다.", Toast.LENGTH_SHORT).show();
+    }
+} );
+```
+
+버튼을 누르면 이제 하단에 ```버튼이 눌러졌습니다.```가 뜨게 된다.
+
+토스트(Toast) 메시지는 메시지가 나타났다가 사라지는 기능을 가진 메시지로 안드로이드 앱을 사용하다 보면 흔히 볼 수 있는 메시지이다.
+
+만일 LENGTH_SHORT 를 LENGTH_LONG 으로 바꾸면 나타나는 시간이 길어진다.
+
+- - -
+
+## 11. 버튼 클릭 시 웹사이트로 이동하는 기능
+
+1. 버튼을 만든다.
+
+2. MainActivity.java 파일에 들어간다.
+
+3. 코드를 작성한다.
+
+```java
+Button button1 = (Button) findViewById(R.id.button1);
+
+button1.setOnClickListener(new View.OnClickListener(){
+   public void onClick(View V) {
+      Intent myIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://www.naver.com"));
+                startActivity(myIntent);
+            }
+        } );
+```
+
+버튼을 누르면 이제 네이버로 이동하게 된다.
+
+new Intent : 인스턴트화
+
+- - -
+
+## 12. 다른 화면으로 이동하기
+
+1. MainActivity가 있는 폴더 오른쪽 클릭 -> new -> Activity -> Empty Activity
+
+2. OneActivity, TwoActivity 2개 생성
+
+3. layout에도 activity_one, activity_two가 생긴 것을 알 수 있음
+
+4. MainActivity.java 파일을 연 후 코드를 작성한다.
+
+```java
+       Button button1 = (Button) findViewById(R.id.button1);
+       Button button2 = (Button) findViewById(R.id.button2);
+
+       button1.setOnClickListener( new View.OnClickListener() {
+           public void onClick(View v) {
+               Intent intent = new Intent(MainActivity.this, OneActivity.class);
+               startActivity(intent);
+           }
+       });
+
+       button2.setOnClickListener( new View.OnClickListener() {
+           public void onClick(View v) {
+               Intent intent = new Intent(MainActivity.this, TwoActivity.class);
+               startActivity(intent);
+           }
+       });
+```
+
+- - -
+
+## 13. 간단한 브라우저 만들기
+
+1. activity_main에 WebView를 Palette에서 꺼낸다.
+
+2. MainActivity에 코드를 수정한다.
+
+```java
+WebView web;
+
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+    // 위의 4문장은 원래 존재하던 문장이다.
+
+
+    web = (WebView) this.findViewById(R.id.webView2);
+    web.setWebViewClient(new WebViewClient());
+    web.loadUrl("http://m.daum.net");
+```
+
+3. 이대로 만들고 실행하면 에러가 뜬다. 웹뷰(WebView)를 추가할 때는 항상 인터넷을 사용한다는 설정을 해야 하는데, 인터넷 사용 설정을 하지 않아 생기는 오류이다.
+
+4. manifests -> AndroidManifest.xml 파일을 클릭하여 코드를 추가한다.
+
+```xml
+
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.kimty.yoyo">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- 이 한 문장만 추가하면 된다. 인터넷 사용을 허가한다는 내용이다. -->
+```
+
+- - -
+
+## 13-2. 뒤로가기, 새로고침, 앞으로가기 버튼 만들기
+
+1. activity_main.xml 을 연다.
+
+2. 버튼 세 개를 삽입한다.
+
+3. MainActivity.java에 코드를 추가한다.
+
+```java
+Button btn1 = (Button) findViewById(R.id.button6);
+Button btn2 = (Button) findViewById(R.id.button7);
+Button btn3 = (Button) findViewById(R.id.button8);
+
+btn1.setOnClickListener(new View.OnClickListener() {
+    public void onClick(View v) {
+            web.goBack();
+        }
+});
+
+btn2.setOnClickListener(new View.OnClickListener() {
+    public void onClick(View v) {
+        web.reload();
+    }
+});
+
+btn3.setOnClickListener(new View.OnClickListener() {
+    public void onClick(View v) {
+        web.goForward();
+    }
+});
+```
+
+- - -
+
+## 14. 버튼 클릭 시, 사운드 재생
+
+1. res파일을 오른쪽 클릭한 후, new -> Android resource directory 클릭
+
+2. raw라는 파일을 새로 만들고 안에 음악 파일을 넣습니다.
+
+3. 버튼을 만듭니다.
+
+4. MainActivity.java 에 코드를 추가합니다.
+
+```java
+SoundPool soundf;
+Button btn;
+int tom;
+
+@Override
+protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    setContentView(R.layout.activity_main);
+
+    soundf = new SoundPool(1, AudioManager.STREAM_MUSIC, 0);
+    tom = soundf.load(this, R.raw.drum4,1);
+
+    btn = (Button)findViewById(R.id.button9);
+    btn.setOnClickListener(new View.OnClickListener() {
+        public void onClick(View v) {
+            soundf.play(tom,1,1,0,0,1);
+
+        }
+    });
+}
+```
+버튼을 누르면 drum4라는 음악이 나올 수 있도록 만들었다.
+
+```soundf.play(a,b,c,d,e,f)``` 인자가 굉장히 많으므로 나누어 설명하겠다.
+
+- a : **int sounded** - 사운드 파일을 구분하기 위한 int형 구분자
+- b : **float leftVolume** - 사운드 왼쪽 볼륨(소리 크기 범위는 0과 1)
+- c : **float rightVolume** - 사운드 우측 볼륨(소리 크기 범위는 0과 1)
+- d : **int priority** - 사운드 우선 순위
+- e : **int loop** - 재생 반복 1은 1회, 2는 2회, -1은 무한 반복
+- f : **float rate** - 재생 속도, 1은 정상 속도, -1은 느리게, 2는 빠르게
