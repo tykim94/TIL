@@ -363,3 +363,47 @@ AlertDialog.Builder alert_confirm = new AlertDialog.Builder(MainActivity.this);
 - - -
 
 ## 17. 앱의 인트로 화면 만들기
+
+기존의 메인 화면인 ```activity_main.xml```만을 가지고 만들었다면 이번엔 앱 실행시 3초동안 앱 인트로 화면을 보여주고 사라지고 main화면을 보여주는 앱을 만들겠다.
+
+1. MainActivity가 있는 폴더 오른쪽 클릭 -> new -> Activity -> Empty Activity
+
+2. ```Intro.xml``` 생성
+
+3. layout에도 ```Intro.java```가 생긴 것을 알 수 있음
+
+4. ```Intro.xml``` 에서 Component Tree -> ConstraintLayout -> Attributes
+
+5. Attributes(속성) -> background -> 원하는 색깔 삽입
+
+6. ```Intro.java``` 코드 작성
+
+ ```java
+ Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                Intent intent = new Intent(Intro.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        }, 3000);
+
+ ```
+ 3초 후에 Intro화면에서 MainActivity로 넘어갈 수 있게 코드 작성
+
+
+ 7. ```AndroidManifest.xml``` 코드 수정
+
+  ```java
+  <activity android:name=".Intro"> //수정
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+  </activity>
+  <activity android:name=".MainActivity"></activity> //수정
+  ```
+  여기서 코드 수정은 두 줄만 이루어지는데, 첫 번째 수정은 ```.MainActivity를 .Intro```로 수정하고 두 번째 수정은 ```.Intro 를 .MainActivity```로 수정한다.
+
+  시작을 MainActivity가 아닌 Intro로 시작하도록 변경해주는 코드이다.
