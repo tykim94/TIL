@@ -89,3 +89,6 @@ OS 역할의 두 가지 View Point : **User View, System View**
 >컴퓨터나 스마트폰 전원을 딱 켰을 때, 이 띄우는 놈을 우리는 bootstrap program 이라고 한다. 물론 OS의 일부이긴 한데, 일반적으로 펌웨어(firmware)로 알려져있다. ROM(Read-Only Memory) 이나 EEPROM에 아얘 박혀져있다. 이것은 CPU 레지스터로부터, 장치 제어기, 메모리 내용 등을 포함한 시스템의 모든 면을 초기화한 후, Kernel을 띄우기 시작한다.
 - - -
 ##컴퓨터 시스템 연산
+ㅇㅇㅇㅇ
+- - -
+#컴퓨터
