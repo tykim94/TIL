@@ -10,7 +10,14 @@
  - 하드웨어를 운영하거나 활용하는 기술적 프로그램
  - 하드웨어에서 수행됨
 
- >네트워크의 최소 단위인 컴퓨터 시스템
+```
+컴퓨터시스템
+컴퓨터 하드웨어 <-> 시스템 소프트웨어 <-> 응용 소프트웨어 <-> 최종 사용자
+```
+>응용 소프트웨어가 가장 중요하다고 할 수 있는데, 최종 사용자인 소비자와 접점을 직접 하고있기 때문이다.
+
+>네트워크의 최소 단위인 컴퓨터 시스템
+>>데스크탑보다 스마트폰이 더 많이 사용되는 요즘, 네트워크로서의 의미가 더욱 중요해졌다. 네트워크는 수많은 노드들이 이어져 있는데 노드는 컴퓨터를 의미한다. 검색 엔진을 통해서 네트워크 상의 무궁무진한 정보들 사이에서 필요한 정보를 뽑아낼 수 있다. 통신기술, 네트워크의 최소 단위인 노드, 컴퓨터의 구성 요소와 작동 원리를 알아야 통신기술을 이해할 수 있다.
 
 ### 컴퓨터 시스템에서 정보처리 순서
 1. 최종 사용자(End User)
@@ -18,34 +25,72 @@
 3. 시스템 소프트웨어 – 정보처리 요구
 4. 컴퓨터 하드웨어 – 실제 정보처리
 
+```
+사용자 레벨(사용자 - 프로그래밍언어)
+- 응용 소프트웨어 레벨(응용 소프트웨어 - 컴파일러, 링커, 로더, 어셈블러 등)
+- 시스템 소프트웨어 레벨(운영체제) - 하드웨어 레벨(하드웨어)
+```
+
 ### 컴퓨터의 발달
+
 1. First-Generation Computers (1946 ~ 1954)
- - 1946년, 최초의 Electronic Digital Computer, ENIAC, J. Presper Eckert, John W. Mauchly에 의해 개발
+ - 1946년, 최초의 Electronic Digital Computer, <u>ENIAC</u>, J. Presper Eckert, John W. Mauchly에 의해 개발
  - 1951년, 최초의 상용화 Computer, UNIVAC, J. Presper Eckert, John W. Mauchly에 의해 개발
- - 1952년, Memory용량 문제를 보완한 EDVAC 등장
+ - 1952년, Memory용량 문제를 보완한 <u>EDVAC</u> 등장
  - Vacuum Tube Memory 보다 우수한 Core memory 개발
+ >에니악(ENIAC) : 전기적인 장치로 구동되는 최초의 컴퓨터
+
 2. Second-generation Computers (1955 ~ 1963)
  - FORTRAN, COBOL, ALGOL 등 Programming Language 개발
- - 1958년, Transistor 사용하여 Super Computer제작
+ - 1958년, <u>Transistor</u> 사용하여 Super Computer제작
+ >프로그램언어가 많이 개발됨 : 포트란 등
+ >진공관에서 트랜지스터로 넘어온 2세대 컴퓨터
+
 3. Third-Generation Computers (1964 ~ 1969)
- - IC(집적회로) 를 구성소자로 이용
- - 1964년, IBM System/360 제작
+ - <u>IC(집적회로)</u> 를 구성소자로 이용
+ - 1964년, <u>IBM System/360</u> 제작
  - 1965년, T. Kurtz와 J. Kemeny에 의해 BASIC Language개발
- - 1968년, Intel사 설립
+ - 1968년, <u>Intel사</u> 설립
  - 1969년, Intel사에서 최초의 Microprocessor i4004 개발
  - PC 통신 출범
-4. Fourth-generation Computers (1970 ~ ) - LSI(고밀도 집적회로)를 기본소자로 한 시대
+ >트랜지스터에서 IC(Intergrated Circuit, 직접 회로)로 넘어온 3세대 컴퓨터
+ >직접회로부터 저항이 강해서 열을 많이 내기 때문에, CPU칩 위에 팬이 달림
+
+
+4. Fourth-generation Computers (1970 ~ ) - <u>LSI(고밀도 집적회로)</u>를 기본소자로 한 시대
  - 1971년, PASCAL 개발
- - 1975년, Microsoft사 설립
- - 1977년, Apple 사 설립
+ - 1975년, <u>Microsoft사</u> 설립
+ - 1977년, <u>Apple사</u> 설립
  - 최초의 Public Online Information Services 실시
  - 최초의 LAN, ETHERNET 개발
  - 1980년, IBM-Personal Computer 발표
- - Microsoft MS-DOS 운영체제 발표
+ - <u>Microsoft MS-DOS 운영체제</u> 발표
+ > MS-DOS : 현대의 Windows의 전신
  - 1985년, UNIX 운영체제 사용 시작
  - 1990년, MS Windows 3.0 발표
- - 1995년~ 현재, windows95발표 ~ windows 10 버전 발표
+ - 1995년~ 현재, windows95발표 ~ <u>windows 10 버전</u> 발표
+
+
+>## 컴퓨터의 발달
+>
+>메인프레임급의 컴퓨터가 먼저 발달 -> 너무 비싸기 때문에 PC 만듬 -> 컴퓨터 가격은 싸지만 단독(Stand Alone)이기 때문에, 데이터의 공유가 안됨 -> 네트워크 발달
+>
+>#### 컴퓨터 소자 발달 관점
+>진공관 -> 트랜지스터 -> 집적회로 -> 고밀도 직접회로
+>
+>#### 데이타 처리의 관점
+>
+>##### Central Processing(중앙 처리)
+>메인프레임에 연결된 터미널은 연산이 불가능하기 때문에, 메인프레임에 입력하여 연산 후
+>출력 결과를 받아 정보 처리를 완성한다.
+>
+>##### Decentral Processing(독립 처리)
+>혼자 PC로서(Stand Alone) 자체적으로 연산을 할 수는 있지만, 다른 사람과의 데이터 공유는 불가능하다.
+>
+>##### Distributed Processing(분산 처리)
+>Internet에 연결된 PC들이 각각 CPU를 가지고 있기 때문에 모든 노드는 연산 처리가 가능하다. Internet에 달린 서버를 통해서 노드인 PC가 서버하고 업무를 협업을 통할 수 있다. 자체적으로 처리할 수 있으면 단독으로 처리하고, 다른 PC에 속한 DB가 필요하면 서버에서 자원을 끌어 쓸 수 있기 때문에 분산 처리라고 한다.
 - - -
+
 # 하드웨어
 
 >컴퓨터 시스템의 각종 기기들로 구성되어 있음.
