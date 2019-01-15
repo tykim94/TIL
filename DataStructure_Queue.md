@@ -60,30 +60,30 @@
          q->rear = (q->rear + 1) % Max_QUEUE_SIZE;
          q->queue[q->rear] = item;
     }
-    ```
+  ```
 
   - ___연결 리스트 방식___
 
   ```c
     void enqueue(QueueType *q, element item)
-{
-	QueueNode * temp = (QueueNode * )malloc(sizeof(QueueNode));
-	if (temp == NULL)
-		error("메모리를 할당할 수 없습니다.");
-	else {
-		temp->item = item;
-		temp->link = NULL;
-		if (is_empty(q)) {
-			q->front = temp;
-			q->rear = temp;
-		}
-		else {
+    {
+	     QueueNode * temp = (QueueNode * )malloc(sizeof(QueueNode));
+	      if (temp == NULL)
+		      error("메모리를 할당할 수 없습니다.");
+	      else {
+		 temp->item = item;
+	 	 temp->link = NULL;
+	  	if (is_empty(q)) {
+	 		 q->front = temp;
+			 q->rear = temp;
+	 	}
+		 else {
 			q->rear->link = temp;  //rear포인터를 통해 새로 할당된 노드와 연결
 			q->rear = temp;        //rear포인터가 새로 할당된 노드 가리킴
 		  }
 	     }
-}
-    ```
+   }
+  ```
 
 
 - ### 삭제 알고리즘
