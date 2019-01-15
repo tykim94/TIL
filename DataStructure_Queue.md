@@ -19,6 +19,7 @@
  *나는 원형 큐의 방식으로 큐를 구현하려 한다.*
 
 ## 3. 큐 알고리즘
+
 - ### 알고리즘 전, 사전준비
 >front와 rear이라는 변수(혹은 포인터변수)를 이용하여 맨 앞과 맨 뒤를 가리켜서 데이터의 입력과 출력을 돕는다.
 
@@ -32,6 +33,7 @@
 	int front, rear;
   } QueueType;
   ```
+
   - ___연결 리스트 방식___
 
   ```c
@@ -44,7 +46,10 @@
   	QueueNode * front, * rear;
   } QueueType;
   ```
+
+
 - ### 삽입 알고리즘  
+
   - ___배열 방식___
 
   ```c
@@ -78,22 +83,22 @@
 	     }
 }
     ```
+
+
 - ### 삭제 알고리즘
 
-    - ___배열 방식___
-
-  ```c
-      element dequeue(QueueType *q)
-{
-	if (is_empty(q))
-		error("큐가 공백상태입니다.");
-	q->front = (q->front + 1) % Max_QUEUE_SIZE;
-	return q->queue[q->front];
-}
-      ```
-    - ___연결 리스트 방식___
-
-  ```c
+ - ___배열 방식___
+    ```c
+    element dequeue(QueueType *q)
+    {
+	       if (is_empty(q))
+		     error("큐가 공백상태입니다.");
+	        q->front = (q->front + 1) % Max_QUEUE_SIZE;
+	         return q->queue[q->front];
+     }
+    ```
+ - ___연결 리스트 방식___
+```c
     element dequeue(QueueType *q) {
     	  QueueNode * temp = q->front;
       	element item;
@@ -111,6 +116,7 @@
     ```
 
 ## 4. 큐의 구현
+
 ### ___배열 방식___
 
 ```c
@@ -184,6 +190,7 @@ void main()
 ```
 
 ### ___연결 리스트 방식___
+
 ```c
 #include<stdio.h>
 #include<malloc.h>
@@ -268,7 +275,10 @@ void main()
 	printf("dequeue() = %d\n", dequeue(&q));
 }
 ```
+
+
 - - -
+
 ## 5. 큐의 활용 1 : 덱(deque)
 ### 덱의 소개
 덱은 ___double-ended queue___ 의 줄임말로서 <u>큐의 front와 rear에서 모두 삽입과 삭제가 가능한 큐</u>를 의미한다.
