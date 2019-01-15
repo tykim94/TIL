@@ -61,6 +61,7 @@
          q->queue[q->rear] = item;
     }
     ```
+
   - ___연결 리스트 방식___
 
   ```c
@@ -98,7 +99,7 @@
      }
     ```
  - ___연결 리스트 방식___
-```c
+    ```c
     element dequeue(QueueType *q) {
     	  QueueNode * temp = q->front;
       	element item;
@@ -113,7 +114,8 @@
       		return item;
       	}
       }
-    ```
+  ```
+
 
 ## 4. 큐의 구현
 
