@@ -99,7 +99,7 @@
      }
     ```
  - ___연결 리스트 방식___
-    ```c
+  ```c
     element dequeue(QueueType *q) {
     	  QueueNode * temp = q->front;
       	element item;
